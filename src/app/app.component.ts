@@ -57,8 +57,9 @@ export class AppComponent {
 				console.log(data);
 				content = <Array<Object>>data;
 				var response = content.responses[0].fullTextAnnotation.text;
-				response = response.replace('/\n/g, " "');
+				response = response.replace(/\n/g, " ");
 				console.log(response);
+				this.serialNum=response;
 			}, (err) => { console.log(err); });
 	}
 }

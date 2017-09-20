@@ -5,7 +5,7 @@
         <h2>Upload Image</h2>
         <label>
           Serial Number
-          <input type="text" formControlName="serialNum">
+          <input type="text" formControlName="serialNum" value="{{serialNum}}">
         </label>
         <input type="file" formControlName="file" (change)="fileEvent($event)">
       </div>
