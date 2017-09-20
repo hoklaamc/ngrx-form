@@ -1,0 +1,14 @@
+<div *ngIf="!name; else forminfo">
+  <form [formGroup]="rForm" (ngSubmit)="addPost(rForm.value)">
+    <div class="form-container">
+      <div class="row columns">
+        <h2>Upload Image</h2>
+        <label>
+          Serial Number
+          <input type="text" formControlName="serialNum">
+        </label>
+        <input type="file" formControlName="file" (change)="fileEvent($event)">
+      </div>
+    </div>
+  </form>
+</div>
