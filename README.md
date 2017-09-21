@@ -2,6 +2,9 @@
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`.
 
-Run `ng build` to build the project.
+To build the project, run
 
-Upload a file to retrieve text in the photo.
+`ng build
+workbox generate:sw
+`
+Then deploy to server.
