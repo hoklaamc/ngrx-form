@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Store } from '@ngrx/store';
+import { UPDATE_SERIALNUM } from './serial-num';
+import { Observable } from 'rxjs/Observable';
+
+interface AppState {
+	serialNum: string;
+}
 
 @Component({
   selector: 'app-root',
@@ -11,15 +18,26 @@ export class AppComponent {
 	debugging = false;
 
 	rForm: FormGroup;
-	serialNum: string = '';
+	serialNum: Observable<String>;
 	fileSubmitted: boolean = false;
 	fileValid: boolean;
+	serialNumField: string;
 
-	constructor(private fb: FormBuilder, private http: HttpClient) {
+	constructor(private fb: FormBuilder, private http: HttpClient, private store: Store<AppState>) {
 		this.rForm = fb.group({
-			'serialNum': ['', Validators.required],
+			'serialNumText': ['', Validators.required],
 			'file': [null, null]
 		});
+		this.serialNum = store.select('serialNum');
+	}
+
+	updateInput(value: any) {
+		if (this.debugging) {
+			console.log('updateInput');
+			console.log(this.serialNumField);
+		}
+		this.serialNumField = value;
+		this.store.dispatch({ type: UPDATE_SERIALNUM, payload: this.serialNumField });
 	}
 
 	fileEvent(fileInput: any) {
@@ -71,7 +89,8 @@ export class AppComponent {
 				var response = content.responses[0].fullTextAnnotation.text;
 				response = response.replace(/\n/g, " ");
 				if (this.debugging) console.log(response);
-				this.serialNum=response;
+				this.serialNumField = response;
+				this.updateInput(this.serialNumField);
 			}, (err) => { console.log(err); });
 	}
 }

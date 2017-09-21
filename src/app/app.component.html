@@ -5,7 +5,7 @@
         <h2>Upload Image</h2>
         <label>
           Serial Number
-          <input type="text" formControlName="serialNum" value="{{serialNum}}">
+          <input #box type="text" formControlName="serialNumText" value="{{ serialNumField }}" (keyup)="updateInput(box.value)">
         </label>
         <label>
           Upload a PNG or JPG file of the serial number
