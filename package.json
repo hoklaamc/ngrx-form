@@ -2,17 +2,24 @@
   "name": "ngrx-form",
   "version": "0.0.0",
   "license": "MIT",
+  "main": "app.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "ng build --aot -prod"
+  },
+  "engines": {
+    "node": "8.4.0",
+    "npm": "5.3.0"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "^4.2.4",
+    "@angular/cli": "1.4.2",
     "@angular/common": "^4.2.4",
     "@angular/compiler": "^4.2.4",
     "@angular/core": "^4.2.4",
@@ -24,6 +31,7 @@
     "@angular/service-worker": "^1.0.0-beta.16",
     "@ngrx/store": "^4.0.3",
     "core-js": "^2.4.1",
+    "express": "^4.15.4",
     "rxjs": "^5.4.2",
     "zone.js": "^0.8.14"
   },
