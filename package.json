@@ -11,7 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "precache": "sw-precache --verbose --config=sw-precache-config.js",
-    "postinstall": "ng build -prod --aot"
+    "postinstall": "ng build -prod --aot && npm run precache"
   },
   "engines": {
     "node": "8.4.0",
