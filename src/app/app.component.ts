@@ -21,6 +21,8 @@ export class AppComponent {
 	serialNum: Observable<String>;
 	fileSubmitted: boolean = false;
 	fileValid: boolean;
+	responseReceived: boolean;
+	responseSucceeded: boolean;
 	serialNumField: string;
 
 	constructor(private fb: FormBuilder, private http: HttpClient, private store: Store<AppState>) {
@@ -80,17 +82,28 @@ export class AppComponent {
 
 		let headers = new Headers({ 'Content-Type': 'applicatoin/json'});
 
+		this.responseReceived = false;
+		this.responseSucceeded = false;
+
 		this.http.post(
 			'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCQm74K6zKe9FF_gHyL8j6KlDvxvgwve5E',
 			JSON.stringify(request)
 			).subscribe(data => {
 				if (this.debugging) console.log(data);
-				content = <Array<Object>>data;
-				var response = content.responses[0].fullTextAnnotation.text;
-				response = response.replace(/\n/g, " ");
-				if (this.debugging) console.log(response);
-				this.serialNumField = response;
-				this.updateInput(this.serialNumField);
+				content = (<Array<Object>>data);
+				if (content.responses[0].fullTextAnnotation) {
+					var response = content.responses[0].fullTextAnnotation.text;
+					response = response.replace(/\n/g, " ");
+					if (this.debugging) console.log(response);
+					this.serialNumField = response;
+					this.updateInput(this.serialNumField);
+					this.responseReceived = true;
+					this.responseSucceeded = true;
+				} else {
+					this.responseReceived = true;
+					this.responseSucceeded = false;
+				}
+
 			}, (err) => { console.log(err); });
 	}
 }

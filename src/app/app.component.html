@@ -12,7 +12,9 @@
           <input type="file" formControlName="file" (change)="fileEvent($event)">
         </label>
         <div class="alert" *ngIf="fileSubmitted && !fileValid">Please upload a PNG or JPG file</div>
-        <div class="alert" *ngIf="fileSubmitted && fileValid">Upload successful</div>
+        <div class="alert" *ngIf="fileSubmitted && fileValid && !responseReceived">Uploading...</div>
+        <div class="alert" *ngIf="responseReceived && responseSucceeded">Upload successful</div>
+        <div class="alert" *ngIf="responseReceived && !responseSucceeded">Upload failed</div>
       </div>
     </div>
   </form>
