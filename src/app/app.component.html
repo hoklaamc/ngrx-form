@@ -7,7 +7,11 @@
           Serial Number
           <input type="text" formControlName="serialNum" value="{{serialNum}}">
         </label>
-        <input type="file" formControlName="file" (change)="fileEvent($event)">
+        <label>
+          Upload a PNG or JPG file of the serial number
+          <input type="file" formControlName="file" (change)="fileEvent($event)">
+        </label>
+        <div class="alert" *ngIf="fileSubmitted && !fileValid">Please upload a PNG or JPG file</div>
       </div>
     </div>
   </form>

@@ -8,8 +8,12 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+	debugging = false;
+
 	rForm: FormGroup;
 	serialNum: string = '';
+	fileSubmitted: boolean = false;
+	fileValid: boolean;
 
 	constructor(private fb: FormBuilder, private http: HttpClient) {
 		this.rForm = fb.group({
@@ -19,19 +23,27 @@ export class AppComponent {
 	}
 
 	fileEvent(fileInput: any) {
-		console.log('File event triggered');
+		if (this.debugging) console.log(fileInput);
 		let file: File = <File>fileInput.target.files[0];
-		console.log(file);
-		var reader: FileReader = new FileReader();
-		reader.onloadend = (e) => {
-			var content = (<FileReader> e.target).result;
-			if (content.includes('data:image/jpeg')) {
-			  this.sendFileToCloudVision(content.replace('data:image/jpeg;base64,', ''));
-			} else if (content.includes('data:image/png')) {
-			  this.sendFileToCloudVision(content.replace('data:image/png;base64,', ''));
+		if (this.debugging) console.log(file);
+		if (file) {
+			var reader: FileReader = new FileReader();
+			reader.onloadend = (e) => {
+				var content = (<FileReader> e.target).result;
+				this.fileSubmitted = true;
+				if (content.includes('data:image/jpeg')) {
+					this.fileValid = true;
+				  this.sendFileToCloudVision(content.replace('data:image/jpeg;base64,', ''));
+				} else if (content.includes('data:image/png')) {
+					this.fileValid = true;
+				  this.sendFileToCloudVision(content.replace('data:image/png;base64,', ''));
+				} else {
+					this.fileValid = false;
+					console.log("File invalid");
+				}
 			}
+			reader.readAsDataURL(file);
 		}
-		reader.readAsDataURL(file);
 	}
 
 	sendFileToCloudVision(content) {
@@ -46,7 +58,7 @@ export class AppComponent {
 		    }]
 		  }]
 		};
-		console.log(request);
+		if (this.debugging) console.log(request);
 
 		let headers = new Headers({ 'Content-Type': 'applicatoin/json'});
 
@@ -54,11 +66,11 @@ export class AppComponent {
 			'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCQm74K6zKe9FF_gHyL8j6KlDvxvgwve5E',
 			JSON.stringify(request)
 			).subscribe(data => {
-				console.log(data);
+				if (this.debugging) console.log(data);
 				content = <Array<Object>>data;
 				var response = content.responses[0].fullTextAnnotation.text;
 				response = response.replace(/\n/g, " ");
-				console.log(response);
+				if (this.debugging) console.log(response);
 				this.serialNum=response;
 			}, (err) => { console.log(err); });
 	}
