@@ -1,21 +1,47 @@
-<div>
-  <form [formGroup]="rForm">
+<div *ngIf="!rfiSubmitted; else rfisummary">
+  <form [formGroup]="rForm" (ngSubmit)="submitRfi(rForm.value)">
     <div class="form-container">
       <div class="row columns">
-        <h2>Upload Image</h2>
-        <label>
-          Serial Number
-          <input #box type="text" formControlName="serialNumText" value="{{ serialNumField }}" (keyup)="updateInput(box.value)">
+        <h2>Create an RFI</h2>
+        <label for="id">Id
+          <input type="text" formControlName="id" value="{{ id }}">
+        </label>
+
+        <label for="request">Request
+          <textarea formControlName="request" value="{{ request }}"></textarea>
         </label>
         <label>
-          Upload a PNG or JPG file of the serial number
-          <input type="file" formControlName="file" (change)="fileEvent($event)">
+          Serial Number
+          <input #box type="text" value="{{ serialNumField }}"
+          formControlName="serialNumField" (keyup)="updateInput(box.value)">
+        </label>
+        <label>
+          Auto detect serial number
+          <input type="file" (change)="fileEvent($event)">
         </label>
         <div class="alert" *ngIf="fileSubmitted && !fileValid">Please upload a PNG or JPG file</div>
         <div class="alert" *ngIf="fileSubmitted && fileValid && !responseReceived">Uploading...</div>
         <div class="alert" *ngIf="responseReceived && responseSucceeded">Upload successful</div>
         <div class="alert" *ngIf="responseReceived && !responseSucceeded">Upload failed</div>
+        <input type="submit" class="button expanded" value="Submit Form" [disabled]="!rForm.valid">
       </div>
     </div>
   </form>
 </div>
+
+<ng-template #rfisummary>
+  <div class="form-container">
+    <div class="row columns" *ngIf="rfiSuccess; else rfifailure">
+      <h1>Your RFI has been submitted.</h1>
+      <p>Id: {{ id }}</p>
+      <p>Request: {{ request }}</p>
+      <p>Serial Number: {{ serialNumField }}</p>
+    </div>
+    <ng-template #rfifailure>
+      <div class="row columns">
+        <h1>Your RFI submission was unsuccessful.</h1>
+      </div>
+    </ng-template>
+    <button class="button expanded" (click)="resetForm()">Reset</button>
+  </div>
+</ng-template>

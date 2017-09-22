@@ -15,30 +15,41 @@ interface AppState {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-	debugging = false;
+	debugging = true;
 
+	rfi: any;
 	rForm: FormGroup;
-	serialNum: Observable<String>;
+	id: number = 1;
+	request: string;
+	serialNum: Observable<String>; // For ngrx
+	serialNumField: string; // For html
+	
 	fileSubmitted: boolean = false;
 	fileValid: boolean;
+	
 	responseReceived: boolean;
 	responseSucceeded: boolean;
-	serialNumField: string;
+	
+	rfiSubmitted: boolean = false;
+	rfiSuccess: boolean;
 
 	constructor(private fb: FormBuilder, private http: HttpClient, private store: Store<AppState>) {
 		this.rForm = fb.group({
-			'serialNumText': ['', Validators.required],
-			'file': [null, null]
+			'id': [this.id, Validators.required],
+			'request': [null, Validators.compose([Validators.required, Validators.maxLength(300)])],
+			'serialNumField': [null, Validators.required]
 		});
 		this.serialNum = store.select('serialNum');
 	}
 
 	updateInput(value: any) {
+		this.serialNumField = value;
 		if (this.debugging) {
 			console.log('updateInput');
+			console.log(value);
 			console.log(this.serialNumField);
 		}
-		this.serialNumField = value;
+		this.rForm.patchValue({serialNumField: value});
 		this.store.dispatch({ type: UPDATE_SERIALNUM, payload: this.serialNumField });
 	}
 
@@ -87,23 +98,45 @@ export class AppComponent {
 
 		this.http.post(
 			'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCQm74K6zKe9FF_gHyL8j6KlDvxvgwve5E',
-			JSON.stringify(request)
-			).subscribe(data => {
+			JSON.stringify(request))
+			.subscribe(data => {
+				this.responseReceived = true;
 				if (this.debugging) console.log(data);
 				content = (<Array<Object>>data);
 				if (content.responses[0].fullTextAnnotation) {
 					var response = content.responses[0].fullTextAnnotation.text;
 					response = response.replace(/\n/g, " ");
 					if (this.debugging) console.log(response);
-					this.serialNumField = response;
-					this.updateInput(this.serialNumField);
-					this.responseReceived = true;
+					this.updateInput(response);
 					this.responseSucceeded = true;
 				} else {
-					this.responseReceived = true;
 					this.responseSucceeded = false;
 				}
-
 			}, (err) => { console.log(err); });
+	}
+
+	submitRfi(rfi) {
+		this.rfiSubmitted = true;
+		this.rfiSuccess = true;
+		this.id = rfi.id;
+		this.request = rfi.request;
+	}
+
+	resetForm() {
+		this.id++;
+		this.request = '';
+		this.serialNumField = null;
+
+		this.fileSubmitted = false;
+		this.fileValid = null;
+
+		this.responseReceived = false;
+		this.responseSucceeded = null;
+
+		this.rfiSubmitted = false;
+		this.rfiSuccess = null;
+		this.rForm.reset({
+			id: this.id
+		});
 	}
 }
