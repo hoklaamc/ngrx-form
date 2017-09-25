@@ -42,6 +42,7 @@ export class AppComponent {
 		this.serialNum = store.select('serialNum');
 	}
 
+	//Update serial number input value and ngrx store
 	updateInput(value: any) {
 		this.serialNumField = value;
 		if (this.debugging) {
@@ -53,6 +54,7 @@ export class AppComponent {
 		this.store.dispatch({ type: UPDATE_SERIALNUM, payload: this.serialNumField });
 	}
 
+	//If file is valid, convert file to a data URL
 	fileEvent(fileInput: any) {
 		if (this.debugging) console.log(fileInput);
 		let file: File = <File>fileInput.target.files[0];
@@ -77,6 +79,7 @@ export class AppComponent {
 		}
 	}
 
+	//Upload file to Google Cloud Vision and handle response
 	sendFileToCloudVision(content) {
 		var request = {
 		  requests: [{
@@ -91,7 +94,7 @@ export class AppComponent {
 		};
 		if (this.debugging) console.log(request);
 
-		let headers = new Headers({ 'Content-Type': 'applicatoin/json'});
+		let headers = new Headers({ 'Content-Type': 'applicatoin/json' });
 
 		this.responseReceived = false;
 		this.responseSucceeded = false;
@@ -115,6 +118,7 @@ export class AppComponent {
 			}, (err) => { console.log(err); });
 	}
 
+	//Submit an RFI
 	submitRfi(rfi) {
 		this.rfiSubmitted = true;
 		this.rfiSuccess = true;
@@ -122,6 +126,7 @@ export class AppComponent {
 		this.request = rfi.request;
 	}
 
+	//Reset the form after submitting an RFI
 	resetForm() {
 		this.id++;
 		this.request = '';
