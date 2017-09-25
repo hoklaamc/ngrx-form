@@ -34,36 +34,47 @@ export class AppComponent {
 	rfiSuccess: boolean;
 
 	constructor(private fb: FormBuilder, private http: HttpClient, private store: Store<AppState>) {
+		//Initialize form group
 		this.rForm = fb.group({
 			'id': [this.id, Validators.required],
 			'request': [null, Validators.compose([Validators.required, Validators.maxLength(300)])],
 			'serialNumField': [null, Validators.required]
 		});
+		//Initialize ngrx store
 		this.serialNum = store.select('serialNum');
 	}
 
 	//Update serial number input value and ngrx store
 	updateInput(value: any) {
+		//Update serial number field
 		this.serialNumField = value;
 		if (this.debugging) {
 			console.log('updateInput');
 			console.log(value);
 			console.log(this.serialNumField);
 		}
+
+		//Update form group value
 		this.rForm.patchValue({serialNumField: value});
+
+		//Update ngrx store
 		this.store.dispatch({ type: UPDATE_SERIALNUM, payload: this.serialNumField });
 	}
 
 	//If file is valid, convert file to a data URL
 	fileEvent(fileInput: any) {
 		if (this.debugging) console.log(fileInput);
+		//Reference file
 		let file: File = <File>fileInput.target.files[0];
 		if (this.debugging) console.log(file);
+		//Check if file was uploaded
 		if (file) {
+			//Use filereader to read file as a data URL
 			var reader: FileReader = new FileReader();
 			reader.onloadend = (e) => {
 				var content = (<FileReader> e.target).result;
 				this.fileSubmitted = true;
+				//Remove prefix
 				if (content.includes('data:image/jpeg')) {
 					this.fileValid = true;
 				  this.sendFileToCloudVision(content.replace('data:image/jpeg;base64,', ''));
@@ -81,6 +92,8 @@ export class AppComponent {
 
 	//Upload file to Google Cloud Vision and handle response
 	sendFileToCloudVision(content) {
+		const VISION_URL = 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCQm74K6zKe9FF_gHyL8j6KlDvxvgwve5E'
+		
 		var request = {
 		  requests: [{
 		    image: {
@@ -94,22 +107,28 @@ export class AppComponent {
 		};
 		if (this.debugging) console.log(request);
 
-		let headers = new Headers({ 'Content-Type': 'applicatoin/json' });
+		let headers = new Headers({ 'Content-Type': 'application/json' });
 
 		this.responseReceived = false;
 		this.responseSucceeded = false;
 
+		//Post to Google Cloud Vision API
 		this.http.post(
-			'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCQm74K6zKe9FF_gHyL8j6KlDvxvgwve5E',
+			VISION_URL,
 			JSON.stringify(request))
-			.subscribe(data => {
+			.subscribe(
+				//Response received
+				data => {
 				this.responseReceived = true;
 				if (this.debugging) console.log(data);
+				//Reference content
 				content = (<Array<Object>>data);
 				if (content.responses[0].fullTextAnnotation) {
 					var response = content.responses[0].fullTextAnnotation.text;
+					//Replace new lines with spaces
 					response = response.replace(/\n/g, " ");
 					if (this.debugging) console.log(response);
+					// Call updateInput to update serial number field
 					this.updateInput(response);
 					this.responseSucceeded = true;
 				} else {
