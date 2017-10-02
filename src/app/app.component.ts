@@ -14,15 +14,18 @@ interface AppState {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
-	debugging = true;
+	//Your API key
+	apiKey: string = ''; //Add your Google Vision API key here
+
 
 	rfi: any;
 	rForm: FormGroup;
 	id: number = 1;
 	request: string;
 	serialNum: Observable<String>; // For ngrx
-	serialNumField: string; // For html
+	serialNumField: string; //For html
 	
 	fileSubmitted: boolean = false;
 	fileValid: boolean;
@@ -34,12 +37,14 @@ export class AppComponent {
 	rfiSuccess: boolean;
 
 	constructor(private fb: FormBuilder, private http: HttpClient, private store: Store<AppState>) {
+		
 		//Initialize form group
 		this.rForm = fb.group({
 			'id': [this.id, Validators.required],
 			'request': [null, Validators.compose([Validators.required, Validators.maxLength(300)])],
 			'serialNumField': [null, Validators.required]
 		});
+		
 		//Initialize ngrx store
 		this.serialNum = store.select('serialNum');
 	}
@@ -48,11 +53,6 @@ export class AppComponent {
 	updateInput(value: any) {
 		//Update serial number field
 		this.serialNumField = value;
-		if (this.debugging) {
-			console.log('updateInput');
-			console.log(value);
-			console.log(this.serialNumField);
-		}
 
 		//Update form group value
 		this.rForm.patchValue({serialNumField: value});
@@ -63,17 +63,19 @@ export class AppComponent {
 
 	//If file is valid, convert file to a data URL
 	fileEvent(fileInput: any) {
-		if (this.debugging) console.log(fileInput);
+		
 		//Reference file
 		let file: File = <File>fileInput.target.files[0];
-		if (this.debugging) console.log(file);
+
 		//Check if file was uploaded
 		if (file) {
+			
 			//Use filereader to read file as a data URL
 			var reader: FileReader = new FileReader();
 			reader.onloadend = (e) => {
 				var content = (<FileReader> e.target).result;
 				this.fileSubmitted = true;
+				
 				//Remove prefix
 				if (content.includes('data:image/jpeg')) {
 					this.fileValid = true;
@@ -86,13 +88,15 @@ export class AppComponent {
 					console.log("File invalid");
 				}
 			}
+			
 			reader.readAsDataURL(file);
 		}
 	}
 
 	//Upload file to Google Cloud Vision and handle response
 	sendFileToCloudVision(content) {
-		const VISION_URL = 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCQm74K6zKe9FF_gHyL8j6KlDvxvgwve5E'
+		
+		const VISION_URL = 'https://vision.googleapis.com/v1/images:annotate?key=' + this.apiKey;
 		
 		var request = {
 		  requests: [{
@@ -105,7 +109,6 @@ export class AppComponent {
 		    }]
 		  }]
 		};
-		if (this.debugging) console.log(request);
 
 		let headers = new Headers({ 'Content-Type': 'application/json' });
 
@@ -120,14 +123,21 @@ export class AppComponent {
 				//Response received
 				data => {
 				this.responseReceived = true;
-				if (this.debugging) console.log(data);
+				
+				console.log(data);
+
 				//Reference content
 				content = (<Array<Object>>data);
+				
 				if (content.responses[0].fullTextAnnotation) {
+					
 					var response = content.responses[0].fullTextAnnotation.text;
+					
 					//Replace new lines with spaces
 					response = response.replace(/\n/g, " ");
-					if (this.debugging) console.log(response);
+
+					console.log(response);
+					
 					// Call updateInput to update serial number field
 					this.updateInput(response);
 					this.responseSucceeded = true;

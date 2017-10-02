@@ -6,12 +6,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build -prod --aot && workbox generate:sw",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "precache": "sw-precache --verbose --config=sw-precache-config.js",
-    "postinstall": "ng build -prod --aot && npm run precache"
+    "e2e": "ng e2e"
   },
   "engines": {
     "node": "8.4.0",
@@ -52,7 +50,6 @@
     "karma-jasmine": "~1.1.0",
     "karma-jasmine-html-reporter": "^0.2.2",
     "protractor": "~5.1.2",
-    "sw-precache": "^5.2.0",
     "ts-node": "~3.2.0",
     "tslint": "~5.3.2",
     "typescript": "~2.3.3"
